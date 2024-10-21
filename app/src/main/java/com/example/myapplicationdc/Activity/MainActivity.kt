@@ -55,9 +55,6 @@ class MainActivity : BaseActivity() {
         }
 
         // Navigate to Home (restarting MainActivity)
-        binding.home.setOnClickListener {
-            startActivity(Intent(this@MainActivity, MainActivity::class.java))
-        }
         binding.favv.setOnClickListener{
             val intent = Intent(this@MainActivity, FavouriteActivity::class.java)
             intent.putExtra("patientId", patientId)

@@ -1,5 +1,6 @@
 package com.example.myapplicationdc.Adapters
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,15 +11,17 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.myapplicationdc.Activity.DetailActivity
 import com.example.myapplicationdc.Domain.DoctorModel
 import com.example.myapplicationdc.databinding.ViewholderTopDoctorBinding
-import java.io.Serializable
 
 class TopDoctorAdapter(private val items: MutableList<DoctorModel>, private val patientId: Int?) :
     RecyclerView.Adapter<TopDoctorAdapter.Viewholder>() {
 
+    private var context: Context? = null
+
     class Viewholder(val binding: ViewholderTopDoctorBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Viewholder {
-        val binding = ViewholderTopDoctorBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        context = parent.context
+        val binding = ViewholderTopDoctorBinding.inflate(LayoutInflater.from(context), parent, false)
         return Viewholder(binding)
     }
 
@@ -36,19 +39,20 @@ class TopDoctorAdapter(private val items: MutableList<DoctorModel>, private val 
             .load(doctor.Picture)
             .apply(RequestOptions().transform(CenterCrop()))
             .into(holder.binding.img)
+
         // Navigate to DetailActivity with selected doctor and patientId
         holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, DetailActivity::class.java).apply {
-                putExtra("doctor", doctor as Serializable)  // Ensure DoctorModel implements Serializable
+            val intent = Intent(context, DetailActivity::class.java).apply {
+                putExtra("object", doctor)
                 putExtra("patientId", patientId)
             }
-            holder.itemView.context.startActivity(intent)
+            context?.startActivity(intent)
         }
+
     }
     fun updateDoctors(newDoctors: List<DoctorModel>) {
         items.clear() // Clear the current list
         items.addAll(newDoctors) // Add the new doctors
         notifyDataSetChanged() // Notify the adapter to refresh the view
     }
-
 }
