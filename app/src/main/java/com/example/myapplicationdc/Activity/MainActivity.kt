@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -79,27 +80,28 @@ class MainActivity : BaseActivity() {
     }
 
     private fun filterDoctors(searchText: String) {
-        val filteredDoctors = viewModel.doctor.value?.filter {
-            it.Name.lowercase(Locale.ROOT).contains(searchText) ||
-                    it.Special.lowercase(Locale.ROOT).contains(searchText)
-        } ?: emptyList()
+        try {
+            val filteredDoctors = viewModel.doctor.value?.filter {
+                it.Name.lowercase(Locale.ROOT).contains(searchText) ||
+                        it.Special.lowercase(Locale.ROOT).contains(searchText)
+            } ?: emptyList()
 
-        TopDoctorAdapter.updateDoctors(filteredDoctors) // Update the adapter with filtered doctors
+            TopDoctorAdapter.updateDoctors(filteredDoctors) // Update the adapter with filtered doctors
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error filtering doctors", e)
+        }
     }
-
     private fun initTopDoctor() {
         binding.progressBarTopDoctors.visibility = View.VISIBLE
 
         viewModel.doctor.observe(this@MainActivity, Observer { doctors ->
-            // Set up RecyclerView layout and adapter
+            TopDoctorAdapter = TopDoctorAdapter(doctors, patientId) // Initialize the adapter here
             binding.recyclerViewTopDoctors.layoutManager = LinearLayoutManager(
                 this@MainActivity,
                 LinearLayoutManager.HORIZONTAL,
                 false
             )
-            binding.recyclerViewTopDoctors.adapter = TopDoctorAdapter(doctors,
-                (patientId)
-            )
+            binding.recyclerViewTopDoctors.adapter = TopDoctorAdapter
 
             // Hide progress bar after data is loaded
             binding.progressBarTopDoctors.visibility = View.GONE

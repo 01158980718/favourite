@@ -1,6 +1,7 @@
 package com.example.myapplicationdc.Activity
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +11,8 @@ import com.example.myapplicationdc.Adapter.FavoriteDoctorAdapter
 import com.example.myapplicationdc.Domain.DoctorModel
 import com.example.myapplicationdc.R
 import com.example.myapplicationdc.ViewModel.favouriteViewModel
+import com.example.myapplicationdc.databinding.ActivityFavouriteBinding
+import com.example.myapplicationdc.databinding.ActivityHistoryBinding
 import com.google.android.material.textview.MaterialTextView
 
 class FavouriteActivity : AppCompatActivity() {
@@ -17,19 +20,24 @@ class FavouriteActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyView: MaterialTextView
     private lateinit var adapter: FavoriteDoctorAdapter
+    private lateinit var binding: ActivityFavouriteBinding
     private var favoriteDoctors: MutableList<DoctorModel> = mutableListOf()
     private val favouriteViewModel: favouriteViewModel by viewModels()
     var patientId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_favourite)
+        binding = ActivityFavouriteBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         recyclerView = findViewById(R.id.recyclerView)
         emptyView = findViewById(R.id.emptyFavoriteView)
 
         adapter = FavoriteDoctorAdapter(this, favoriteDoctors) { doctor ->
             removeDoctorFromFavorites(doctor)
+        }
+        binding.backBtn.setOnClickListener {
+            onBackPressed()
         }
 
         patientId = intent.getIntExtra("patientId", -1)
@@ -38,6 +46,7 @@ class FavouriteActivity : AppCompatActivity() {
 
         loadFavorites()
     }
+
 
     private fun loadFavorites() {
         favoriteDoctors = favouriteViewModel.loadFavoriteDoctors(this, patientId).toMutableList()
